@@ -23,7 +23,7 @@ export default function LandingPage() {
 
       <main className="container mx-auto px-4 py-8">
         <div className="text-center mb-10">
-          <h1 className="text-4xl md:text-5xl font-bold text-blue-700 mb-4">Hostel Mess Management System</h1>
+          <h1 className="text-4xl md:text-5xl font-bold text-blue-700 mb-4">Website For Mess Management</h1>
           <p className="text-lg text-gray-600 max-w-2xl mx-auto">
             Efficiently manage hostel mess operations, attendance, and payments
           </p>

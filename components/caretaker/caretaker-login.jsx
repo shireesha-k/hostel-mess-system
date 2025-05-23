@@ -24,7 +24,7 @@ export default function CaretakerLogin({ onLogin }) {
     <div className="container mx-auto px-4 py-16 flex justify-center">
       <div className="w-full max-w-md">
         <div className="bg-white rounded-lg shadow-md p-8">
-          <h2 className="text-2xl font-bold text-center text-green-700 mb-6">Caretaker Login</h2>
+          <h2 className="text-2xl font-bold text-center text-blue-700 mb-6">Caretaker Login</h2>
 
           <form onSubmit={handleSubmit}>
             <div className="mb-4">
@@ -83,7 +83,7 @@ export default function CaretakerLogin({ onLogin }) {
 
             <button
               type="submit"
-              className="w-full bg-green-700 text-white py-2 px-4 rounded-md hover:bg-green-800 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition-colors"
+              className="w-full bg-blue-700 text-white py-2 px-4 rounded-md hover:bg-green-800 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition-colors"
             >
               Login
             </button>

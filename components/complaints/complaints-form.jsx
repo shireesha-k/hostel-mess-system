@@ -48,7 +48,7 @@ export default function ComplaintsForm() {
 
       <main className="container mx-auto px-4 py-8">
         <div className="text-center mb-10">
-          <h1 className="text-3xl font-bold text-red-700">Submit a Complaint</h1>
+          <h1 className="text-3xl font-bold text-blue-700">Submit a Complaint</h1>
           <p className="text-gray-600">Let us know if you have any issues with the mess services</p>
         </div>
 
@@ -110,10 +110,20 @@ export default function ComplaintsForm() {
                   >
                     <option value="">Select Branch</option>
                     <option value="CSE">CSE</option>
+                    <option value="CSE(AI&ML)">CSE(AI&ML)</option>
+                    <option value="CSC">CSC</option>
+                    <option value="CSE-IDP">CSE-IDP</option>
                     <option value="ECE">ECE</option>
-                    <option value="ME">ME</option>
+                    <option value="ECE-IDP">ECE-IDP</option>
                     <option value="EEE">EEE</option>
+                    <option value="EEE-IDP">EEE-IDP</option>
+                    <option value="Mechanical">Mechanical</option>
+                    <option value="Metallurgy">Metallurgy</option>
+                    <option value="Civil">Civil</option>
+                    <option value="Civil-Idp">Civil-Idp</option>
+                    <option value="bio-Technology">Bio technology</option>
                     <option value="IT">IT</option>
+
                   </select>
                 </div>
               </div>

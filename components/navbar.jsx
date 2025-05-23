@@ -22,7 +22,7 @@ export default function Navbar({ activeTab, onTabChange }) {
         <div className="flex justify-between items-center h-16">
           <div className="flex items-center">
             <Link href="/" className="font-bold text-xl">
-              HMMS
+              Website For Mess Management
             </Link>
           </div>
 

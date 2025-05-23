@@ -7,7 +7,7 @@ export default function StudentProfile({ student }) {
 
       <div className="flex flex-col space-y-4">
         <div className="flex items-center">
-          <div className="bg-red-100 p-2 rounded-full mr-3">
+          <div className="bg-blue-100 p-2 rounded-full mr-3">
             <User size={20} className="text-red-700" />
           </div>
           <div>
@@ -17,7 +17,7 @@ export default function StudentProfile({ student }) {
         </div>
 
         <div className="flex items-center">
-          <div className="bg-red-100 p-2 rounded-full mr-3">
+          <div className="bg-blue-100 p-2 rounded-full mr-3">
             <BookOpen size={20} className="text-red-700" />
           </div>
           <div>
@@ -27,7 +27,7 @@ export default function StudentProfile({ student }) {
         </div>
 
         <div className="flex items-center">
-          <div className="bg-red-100 p-2 rounded-full mr-3">
+          <div className="bg-blue-100 p-2 rounded-full mr-3">
             <BookOpen size={20} className="text-red-700" />
           </div>
           <div>
@@ -37,7 +37,7 @@ export default function StudentProfile({ student }) {
         </div>
 
         <div className="flex items-center">
-          <div className="bg-red-100 p-2 rounded-full mr-3">
+          <div className="bg-blue-100 p-2 rounded-full mr-3">
             <Phone size={20} className="text-red-700" />
           </div>
           <div>

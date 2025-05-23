@@ -80,6 +80,21 @@ export default function UpdateExpenses() {
           </div>
           <p className="mt-1 text-sm text-gray-500">Enter the total expense for the selected month</p>
         </div>
+        
+          <div className="mb-6 p-4 bg-green-50 border border-green-200 rounded-md">
+            <h3 className="text-lg font-medium text-green-800 mb-2">Automatic Bill Calculation</h3>
+            <p className="text-sm text-gray-600">
+              Bills are automatically calculated using the formula:
+              <br />
+              <span className="font-medium">Bill = (Total Monthly Expense / No. of Days) × (Present Days)</span>
+              <br />
+              Example: If total expense = ₹1,00,000 for 30 days, and a student was present 25 days →
+              <br />
+              Bill = (1,00,000 / 30) × 25 = ₹83,333
+            </p>
+
+          </div>
+
 
         <div className="pt-2">
           <button

@@ -8,6 +8,7 @@ import UpdateExpenses from "@/components/admin/update-expenses"
 import StudentDataTable from "@/components/admin/student-data-table"
 import ComplaintsTable from "@/components/admin/complaints-table"
 import UpdateNews from "@/components/admin/update-news"
+import EnquiryTable from "@/components/admin/enquiry-table"
 
 export default function AdminDashboard() {
   const router = useRouter()
@@ -83,6 +84,14 @@ export default function AdminDashboard() {
             >
               Update News
             </button>
+            <button
+              className={`px-4 py-3 text-sm font-medium ${
+                activeSection === "enquiry" ? "bg-blue-700 text-white" : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+              }`}
+              onClick={() => setActiveSection("enquiry")}
+            >
+              View Enquiries
+            </button>
           </div>
 
           <div className="p-6">
@@ -90,6 +99,7 @@ export default function AdminDashboard() {
             {activeSection === "students" && <StudentDataTable />}
             {activeSection === "complaints" && <ComplaintsTable />}
             {activeSection === "news" && <UpdateNews />}
+            {activeSection === "enquiry" && <EnquiryTable />}
           </div>
         </div>
       </main>

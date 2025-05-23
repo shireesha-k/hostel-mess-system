@@ -91,7 +91,7 @@ export default function EnquiryTable() {
   return (
     <div>
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-4 gap-4">
-        <h3 className="text-xl font-semibold text-gray-800">Student Complaints</h3>
+        <h3 className="text-xl font-semibold text-gray-800">Student Enquiries</h3>
 
         <div className="flex flex-col sm:flex-row gap-2 w-full md:w-auto">
           <div className="relative">

@@ -2,6 +2,8 @@
 
 import { useState } from "react"
 import { Search, Save } from "lucide-react"
+import ComplaintsTable from "../admin/complaints-table"
+import EnquiryTable from "../admin/enquiry-table"
 
 export default function StudentDataTable() {
   const [searchTerm, setSearchTerm] = useState("")

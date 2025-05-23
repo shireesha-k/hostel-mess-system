@@ -7,7 +7,6 @@ import StudentLogin from "@/components/student/student-login"
 import StudentProfile from "@/components/student/student-profile"
 import AttendanceChart from "@/components/student/attendance-chart"
 import PaymentStatus from "@/components/student/payment-status"
-import BillBreakdown from "@/components/student/bill-breakdown"
 
 export default function StudentDashboard() {
   const router = useRouter()
@@ -84,20 +83,23 @@ export default function StudentDashboard() {
           <p className="text-gray-600">View your mess details and payment status</p>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          <div className="lg:col-span-1">
-            <StudentProfile student={studentData} />
-          </div>
+        <div className="max-w-6xl mx-auto space-y-6">
+          {/* Top Row: Student Profile and Payment Status */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {/* Student Profile */}
+            <div className="w-full">
+              <StudentProfile student={studentData} />
+            </div>
 
-          <div className="lg:col-span-2">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <AttendanceChart attendance={studentData.attendance} />
+            {/* Payment Status */}
+            <div className="w-full">
               <PaymentStatus status={studentData.paymentStatus} dueDate={studentData.dueDate} />
             </div>
+          </div>
 
-            <div className="mt-6">
-              <BillBreakdown currentBill={studentData.currentBill} previousBills={studentData.bills} />
-            </div>
+          {/* Bottom Row: Attendance & Billing Details */}
+          <div className="w-full">
+            <AttendanceChart attendance={studentData.attendance} />
           </div>
         </div>
       </main>

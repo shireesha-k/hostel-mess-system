@@ -57,7 +57,7 @@ Before running this project, make sure you have:
 
 1. **Clone the repository**
    ```bash
-   git clone <repository-url>
+   git clone <https://github.com/shireesha-k/hostel-mess-system.git>
    cd hostel-mess-system2
    ```
 

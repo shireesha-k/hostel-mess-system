@@ -1,7 +1,7 @@
 "use client"
 
-import { useState } from "react"
-import { Search, Save } from "lucide-react"
+import { useState, useEffect } from "react"
+import { Search, Save, Calculator } from "lucide-react"
 import ComplaintsTable from "../admin/complaints-table"
 import EnquiryTable from "../admin/enquiry-table"
 
@@ -10,83 +10,83 @@ export default function StudentDataTable() {
 
   // Sample student data with editable fields
   const initialStudents = [
-    { id: 1, name: "Ajay Kumar", rollNo: 101, branch: "CSE", hostel: "Boys Hostel", attendanceDays: 27, totalDays: 30, monthlyBill: 9000, paymentStatus: "Paid" },
+    { id: 1, name: "Ajay Kumar", rollNo: "23011A6601", branch: "CSE", hostel: "Boys Hostel", attendanceDays: 27, totalDays: 30, monthlyBill: 0, paymentStatus: "Pending" },
     {
       id: 2,
       name: "Priya Singh",
-      rollNo: 102,
+      rollNo: "23011A6602",
       branch: "ECE",
       hostel: "Girls Hostel",
       attendanceDays: 25,
       totalDays: 30,
-      monthlyBill: 8500,
+      monthlyBill: 0,
       paymentStatus: "Pending",
     },
     {
       id: 3,
       name: "Rahul Sharma",
-      rollNo: 103,
+      rollNo: "23011A6603",
       branch: "ME",
       hostel: "Boys Hostel",
       attendanceDays: 28,
       totalDays: 30,
-      monthlyBill: 9500,
-      paymentStatus: "Paid",
+      monthlyBill: 0,
+      paymentStatus: "Pending",
     },
     {
       id: 4,
       name: "Neha Gupta",
-      rollNo: 104,
+      rollNo: "23011A6604",
       branch: "CSE",
       hostel: "Girls Hostel",
       attendanceDays: 24,
       totalDays: 30,
-      monthlyBill: 8000,
+      monthlyBill: 0,
       paymentStatus: "Pending",
     },
     {
       id: 5,
       name: "Vikram Patel",
-      rollNo: 105,
+      rollNo: "23011A6605",
       branch: "EEE",
       hostel: "Boys Hostel",
       attendanceDays: 30,
       totalDays: 30,
-      monthlyBill: 10000,
-      paymentStatus: "Paid",
+      monthlyBill: 0,
+      paymentStatus: "Pending",
     },
     {
       id: 6,
       name: "Ananya Reddy",
-      rollNo: 106,
+      rollNo: "23011A6606",
       branch: "IT",
       hostel: "Girls Hostel",
       attendanceDays: 27,
       totalDays: 30,
-      monthlyBill: 9200,
-      paymentStatus: "Paid",
+      monthlyBill: 0,
+      paymentStatus: "Pending",
     },
     {
       id: 7,
       name: "Karthik Nair",
-      rollNo: 107,
+      rollNo: "23011A6607",
       branch: "CSE",
       hostel: "Boys Hostel",
       attendanceDays: 23,
       totalDays: 30,
-      monthlyBill: 7800,
+      monthlyBill: 0,
       paymentStatus: "Pending",
     },
     {
       id: 8,
       name: "Meera Joshi",
-      rollNo: 108,
+      rollNo: "23011A6608",
       branch: "ECE",
       hostel: "Girls Hostel",
       attendanceDays: 26,
       totalDays: 30,
-      monthlyBill: 8800,
-      paymentStatus: "Paid",
+      monthlyBill: 0,
+      paymentStatus: "Pending",
     },
   ]
 
@@ -94,16 +94,51 @@ export default function StudentDataTable() {
   const [editableStudents, setEditableStudents] = useState(initialStudents)
   const [selectedBranch, setSelectedBranch] = useState("All")
   const [selectedHostel, setSelectedHostel] = useState("All")
+  const [monthlyCalculations, setMonthlyCalculations] = useState({})
+
+  // Load student data and calculations from localStorage on component mount
+  useEffect(() => {
+    const savedStudentData = localStorage.getItem('studentData')
+    const savedCalculations = localStorage.getItem('monthlyCalculations')
+    
+    if (savedStudentData) {
+      const parsedData = JSON.parse(savedStudentData)
+      setStudents(parsedData)
+      setEditableStudents(parsedData)
+    }
+    
+    if (savedCalculations) {
+      setMonthlyCalculations(JSON.parse(savedCalculations))
+    }
+  }, [])
+
+  // Listen for bill update events
+  useEffect(() => {
+    const handleBillsUpdated = (event) => {
+      const { updatedStudentData } = event.detail
+      setStudents(updatedStudentData)
+      setEditableStudents(updatedStudentData)
+      
+      // Reload calculations
+      const savedCalculations = localStorage.getItem('monthlyCalculations')
+      if (savedCalculations) {
+        setMonthlyCalculations(JSON.parse(savedCalculations))
+      }
+    }
+
+    window.addEventListener('billsUpdated', handleBillsUpdated)
+    return () => window.removeEventListener('billsUpdated', handleBillsUpdated)
+  }, [])
 
   // Get unique branches and hostels for filters
-  const branches = ["All", ...new Set(initialStudents.map(student => student.branch))]
-  const hostels = ["All", ...new Set(initialStudents.map(student => student.hostel))]
+  const branches = ["All", ...new Set(students.map(student => student.branch))]
+  const hostels = ["All", ...new Set(students.map(student => student.hostel))]
 
   // Filter students based on search term, branch, and hostel
   const filteredStudents = editableStudents.filter(
     (student) =>
       (student.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        student.rollNo.toString().includes(searchTerm) ||
+        student.rollNo.toString().toLowerCase().includes(searchTerm.toLowerCase()) ||
         student.branch.toLowerCase().includes(searchTerm.toLowerCase())) &&
       (selectedBranch === "All" || student.branch === selectedBranch) &&
       (selectedHostel === "All" || student.hostel === selectedHostel)
@@ -129,36 +164,44 @@ export default function StudentDataTable() {
     setEditableStudents((prevStudents) =>
       prevStudents.map((student) => (student.id === id ? { ...student, [field]: value } : student)),
     )
-  }
-
-  const calculateBill = (attendanceDays, totalDays) => {
-    // Example calculation: 100 per attendance day
-    return Math.round((attendanceDays / totalDays) * 100 * 100)
+    
+    // Dispatch event for payment status changes
+    if (field === "paymentStatus") {
+      window.dispatchEvent(new CustomEvent('paymentStatusUpdated', {
+        detail: { studentId: id, newStatus: value }
+      }))
+    }
   }
 
   const handleAttendanceChange = (id, value) => {
     const attendanceDays = Math.min(Math.max(Number.parseInt(value) || 0, 0), 30)
-    const student = editableStudents.find(s => s.id === id)
-    const monthlyBill = calculateBill(attendanceDays, student.totalDays)
-
+    
     setEditableStudents((prevStudents) =>
       prevStudents.map((student) => 
-        student.id === id ? { ...student, attendanceDays, monthlyBill } : student
+        student.id === id ? { ...student, attendanceDays } : student
       ),
     )
   }
 
   const handleSaveChanges = () => {
     setStudents(editableStudents)
+    
+    // Save updated data to localStorage
+    localStorage.setItem('studentData', JSON.stringify(editableStudents))
+    
     // Update student dashboard data
     const updatedData = editableStudents.map(student => ({
       ...student,
       attendancePercentage: Math.round((student.attendanceDays / student.totalDays) * 100)
     }))
-    // Here you would typically make an API call to update the student dashboard
+    
     console.log('Updated student dashboard data:', updatedData)
     alert("Student data updated successfully!")
   }
+
+  // Get current month's calculation info
+  const currentMonth = new Date().toISOString().slice(0, 7)
+  const currentCalculation = monthlyCalculations[currentMonth]
 
   return (
     <div>
@@ -205,6 +248,34 @@ export default function StudentDataTable() {
         </button>
       </div>
 
+      {/* Bill Calculation Summary */}
+      {currentCalculation && (
+        <div className="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-md">
+          <div className="flex items-center gap-2 mb-3">
+            <Calculator size={18} className="text-blue-600" />
+            <h4 className="font-medium text-blue-800">Current Month Bill Calculation ({currentMonth})</h4>
+          </div>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+            <div>
+              <span className="text-gray-600">Total Expense:</span>
+              <span className="font-medium ml-1">₹{currentCalculation.totalExpense?.toLocaleString() || 'N/A'}</span>
+            </div>
+            <div>
+              <span className="text-gray-600">Hostel:</span>
+              <span className="font-medium ml-1">{currentCalculation.hostelType === 'boys' ? 'Boys' : 'Girls'} Hostel</span>
+            </div>
+            <div>
+              <span className="text-gray-600">Total Students:</span>
+              <span className="font-medium ml-1">{currentCalculation.totalStudents || 'N/A'}</span>
+            </div>
+            <div>
+              <span className="text-gray-600">Base Rate:</span>
+              <span className="font-medium ml-1">₹{currentCalculation.baseRate?.toFixed(2) || 'N/A'}/day</span>
+            </div>
+          </div>
+        </div>
+      )}
+
       <div className="space-y-8">
         {/* Show Boys Hostel section only when "All" or "Boys Hostel" is selected */}
         {(selectedHostel === "All" || selectedHostel === "Boys Hostel") && (
@@ -247,7 +318,12 @@ export default function StudentDataTable() {
                           <span className="text-sm text-gray-500 ml-2">/ {student.totalDays}</span>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                          {student.monthlyBill.toLocaleString()}
+                          <span className={`font-medium ${student.monthlyBill > 0 ? 'text-green-600' : 'text-gray-400'}`}>
+                            ₹{student.monthlyBill.toLocaleString()}
+                          </span>
+                          {student.monthlyBill === 0 && (
+                            <span className="text-xs text-gray-400 ml-1">(Not calculated)</span>
+                          )}
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
                           <select
@@ -315,7 +391,12 @@ export default function StudentDataTable() {
                           <span className="text-sm text-gray-500 ml-2">/ {student.totalDays}</span>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                          {student.monthlyBill.toLocaleString()}
+                          <span className={`font-medium ${student.monthlyBill > 0 ? 'text-green-600' : 'text-gray-400'}`}>
+                            ₹{student.monthlyBill.toLocaleString()}
+                          </span>
+                          {student.monthlyBill === 0 && (
+                            <span className="text-xs text-gray-400 ml-1">(Not calculated)</span>
+                          )}
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
                           <select

@@ -1,22 +1,49 @@
 "use client"
 
-import { useState } from "react"
-import { User, Lock } from "lucide-react"
+import { useState, useEffect } from "react"
+import { User, Lock, AlertCircle } from "lucide-react"
 
 export default function StudentLogin({ onLogin }) {
   const [formData, setFormData] = useState({
     rollNo: "",
     password: "",
   })
+  const [error, setError] = useState("")
+  const [availableStudents, setAvailableStudents] = useState([])
+
+  // Load available students for demo purposes
+  useEffect(() => {
+    const savedStudentData = localStorage.getItem('studentData')
+    if (savedStudentData) {
+      setAvailableStudents(JSON.parse(savedStudentData))
+    }
+  }, [])
 
   const handleChange = (e) => {
     const { name, value } = e.target
     setFormData((prev) => ({ ...prev, [name]: value }))
+    setError("") // Clear error when user types
   }
 
   const handleSubmit = (e) => {
     e.preventDefault()
-    onLogin(formData)
+    
+    // Find student by roll number
+    const student = availableStudents.find(s => s.rollNo === formData.rollNo)
+    
+    if (!student) {
+      setError("Invalid roll number. Please check and try again.")
+      return
+    }
+
+    // For demo purposes, any password works
+    if (!formData.password) {
+      setError("Password is required.")
+      return
+    }
+
+    // Login successful
+    onLogin({ ...formData, student })
   }
 
   return (
@@ -37,8 +64,8 @@ export default function StudentLogin({ onLogin }) {
                   name="rollNo"
                   value={formData.rollNo}
                   onChange={handleChange}
-                  className="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500"
-                  placeholder="101"
+                  className="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  placeholder="23011A6601"
                   required
                 />
               </div>
@@ -55,24 +82,29 @@ export default function StudentLogin({ onLogin }) {
                   name="password"
                   value={formData.password}
                   onChange={handleChange}
-                  className="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500"
+                  className="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                   placeholder="••••••••"
                   required
                 />
               </div>
             </div>
 
+            {error && (
+              <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-md">
+                <div className="flex items-center text-red-800">
+                  <AlertCircle size={18} className="mr-2" />
+                  <span className="text-sm">{error}</span>
+                </div>
+              </div>
+            )}
+
             <button
               type="submit"
-              className="w-full bg-blue-700 text-white py-2 px-4 rounded-md hover:bg-red-800 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 transition-colors"
+              className="w-full bg-blue-700 text-white py-2 px-4 rounded-md hover:bg-blue-800 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors"
             >
               Login
             </button>
           </form>
-
-          <div className="mt-4 text-center">
-            <p className="text-sm text-gray-600">For demo purposes, you can use any credentials</p>
-          </div>
         </div>
       </div>
     </div>

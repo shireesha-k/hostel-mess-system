@@ -5,14 +5,14 @@ import { useRouter } from "next/navigation"
 import Navbar from "@/components/navbar"
 import StudentLogin from "@/components/student/student-login"
 import StudentProfile from "@/components/student/student-profile"
-import AttendanceChart from "@/components/student/attendance-chart"
 import PaymentStatus from "@/components/student/payment-status"
+import BillBreakdown from "@/components/student/bill-breakdown"
 
 export default function StudentDashboard() {
   const router = useRouter()
   const [isLoggedIn, setIsLoggedIn] = useState(false)
   const [activeTab, setActiveTab] = useState("student")
-  const [studentData, setStudentData] = useState(null)
+  const [loggedInStudent, setLoggedInStudent] = useState(null)
 
   const handleTabChange = (tab) => {
     setActiveTab(tab)
@@ -25,12 +25,13 @@ export default function StudentDashboard() {
     // In a real app, you would validate credentials against a backend
     console.log("Login attempt with:", credentials)
 
-    // Mock student data
-    setStudentData({
-      name: "Ajay Kumar",
-      rollNo: 101,
-      branch: "CSE",
-      pnNo: 987654,
+    // Use the actual student data from login
+    const student = credentials.student
+    
+    // Create student data with attendance history
+    const studentData = {
+      ...student,
+      pnNo: 987654, // Mock PN number
       attendance: {
         January: 85,
         February: 90,
@@ -43,7 +44,6 @@ export default function StudentDashboard() {
         September: 89,
         October: 91,
       },
-      paymentStatus: "Paid",
       dueDate: "2023-11-15",
       bills: [
         { month: "October", amount: 9100, status: "Paid", date: "2023-10-10" },
@@ -59,8 +59,9 @@ export default function StudentDashboard() {
           { item: "Electricity", amount: 500 },
         ],
       },
-    })
+    }
 
+    setLoggedInStudent(studentData)
     setIsLoggedIn(true)
   }
 
@@ -79,30 +80,49 @@ export default function StudentDashboard() {
 
       <main className="container mx-auto px-4 py-8">
         <div className="text-center mb-10">
-          <h1 className="text-3xl font-bold text-blue-700">Student Dashboard</h1>
-          <p className="text-gray-600">View your mess details and payment status</p>
+          <div className="flex justify-between items-center mb-4">
+            <div></div>
+            <h1 className="text-3xl font-bold text-blue-700">Student Dashboard</h1>
+            <button
+              onClick={() => {
+                setIsLoggedIn(false)
+                setLoggedInStudent(null)
+              }}
+              className="px-4 py-2 bg-gray-600 text-white rounded-md hover:bg-gray-700 transition-colors"
+            >
+              Logout
+            </button>
+          </div>
+          <p className="text-gray-600">
+            Welcome, {loggedInStudent.name} ({loggedInStudent.rollNo})
+          </p>
         </div>
 
-        <div className="max-w-6xl mx-auto space-y-6">
+        <div className="max-w-7xl mx-auto space-y-6">
           {/* Top Row: Student Profile and Payment Status */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {/* Student Profile */}
             <div className="w-full">
-              <StudentProfile student={studentData} />
+              <StudentProfile student={loggedInStudent} />
             </div>
 
             {/* Payment Status */}
             <div className="w-full">
-              <PaymentStatus status={studentData.paymentStatus} dueDate={studentData.dueDate} />
+              <PaymentStatus 
+                status={loggedInStudent.paymentStatus} 
+                dueDate={loggedInStudent.dueDate}
+                studentRollNo={loggedInStudent.rollNo}
+              />
             </div>
           </div>
 
-          {/* Bottom Row: Attendance & Billing Details */}
+          {/* Bill Breakdown */}
           <div className="w-full">
-            <AttendanceChart attendance={studentData.attendance} />
+            <BillBreakdown studentRollNo={loggedInStudent.rollNo} />
           </div>
         </div>
       </main>
     </div>
   )
 }
+

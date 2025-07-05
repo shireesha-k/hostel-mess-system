@@ -1,81 +1,108 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Search, Filter } from "lucide-react"
 
 export default function ComplaintsTable() {
   const [searchTerm, setSearchTerm] = useState("")
   const [filter, setFilter] = useState("all")
-
-  // Sample complaints data
-  const initialComplaints = [
+  const [complaints, setComplaints] = useState([])
+  const [sampleComplaints, setSampleComplaints] = useState([
     {
       id: 1,
-      studentName: "Rahul Sharma",
+      name: "Rahul Sharma",
       rollNo: 103,
       pnNo: 765432,
       branch: "ME",
-      complaint: "Food quality is poor and not hygienic",
-      status: "Pending",
+      complaint_text: "Food quality is poor and not hygienic",
+      status: "pending",
     },
     {
       id: 2,
-      studentName: "Priya Singh",
+      name: "Priya Singh",
       rollNo: 102,
       pnNo: 876543,
       branch: "ECE",
-      complaint: "Mess is not clean",
-      status: "Resolved",
+      complaint_text: "Mess is not clean",
+      status: "resolved",
     },
     {
       id: 3,
-      studentName: "Neha Gupta",
+      name: "Neha Gupta",
       rollNo: 104,
       pnNo: 654321,
       branch: "CSE",
-      complaint: "Breakfast is always late",
-      status: "Pending",
+      complaint_text: "Breakfast is always late",
+      status: "pending",
     },
     {
       id: 4,
-      studentName: "Vikram Patel",
+      name: "Vikram Patel",
       rollNo: 105,
       pnNo: 543210,
       branch: "EEE",
-      complaint: "Not enough food options for vegetarians",
-      status: "In Progress",
+      complaint_text: "Not enough food options for vegetarians",
+      status: "in progress",
     },
     {
       id: 5,
-      studentName: "Ananya Reddy",
+      name: "Ananya Reddy",
       rollNo: 106,
       pnNo: 432109,
       branch: "IT",
-      complaint: "Water is not clean",
-      status: "Resolved",
+      complaint_text: "Water is not clean",
+      status: "resolved",
     },
     {
       id: 6,
-      studentName: "Karthik Nair",
+      name: "Karthik Nair",
       rollNo: 107,
       pnNo: 321098,
       branch: "CSE",
-      complaint: "Food is too spicy",
-      status: "Pending",
-    },
-  ]
+      complaint_text: "Food is too spicy",
+      status: "pending",
+          },
+    ])
 
-  const [complaints] = useState(initialComplaints)
+  // Load complaints from localStorage and combine with sample data
+  useEffect(() => {
+    const submittedComplaints = JSON.parse(localStorage.getItem('complaints') || '[]');
+    const allComplaints = [...sampleComplaints, ...submittedComplaints];
+    setComplaints(allComplaints);
+  }, []);
+
+  // Refresh data when localStorage changes or new complaint is submitted
+  useEffect(() => {
+    const handleStorageChange = () => {
+      const submittedComplaints = JSON.parse(localStorage.getItem('complaints') || '[]');
+      const allComplaints = [...sampleComplaints, ...submittedComplaints];
+      setComplaints(allComplaints);
+    };
+
+    const handleComplaintSubmitted = () => {
+      const submittedComplaints = JSON.parse(localStorage.getItem('complaints') || '[]');
+      const allComplaints = [...sampleComplaints, ...submittedComplaints];
+      setComplaints(allComplaints);
+    };
+
+    window.addEventListener('storage', handleStorageChange);
+    window.addEventListener('complaintSubmitted', handleComplaintSubmitted);
+    
+    return () => {
+      window.removeEventListener('storage', handleStorageChange);
+      window.removeEventListener('complaintSubmitted', handleComplaintSubmitted);
+    };
+  }, []);
 
   // Filter complaints based on search term and status filter
   const filteredComplaints = complaints.filter((complaint) => {
     const matchesSearch =
-      complaint.studentName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      complaint.rollNo.toString().includes(searchTerm) ||
-      complaint.branch.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      complaint.complaint.toLowerCase().includes(searchTerm.toLowerCase())
+      complaint.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      complaint.rollNo?.toString().includes(searchTerm) ||
+      complaint.branch?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      complaint.complaint_text?.toLowerCase().includes(searchTerm.toLowerCase())
 
-    const matchesFilter = filter === "all" || complaint.status.toLowerCase() === filter.toLowerCase()
+    const matchesFilter = filter === "all" || complaint.status?.toLowerCase() === filter.toLowerCase()
 
     return matchesSearch && matchesFilter
   })
@@ -86,6 +113,38 @@ export default function ComplaintsTable() {
 
   const handleFilterChange = (e) => {
     setFilter(e.target.value)
+  }
+
+  const handleStatusChange = (complaintId, newStatus) => {
+    // Check if it's a sample complaint or submitted complaint
+    const isSampleComplaint = sampleComplaints.some(complaint => complaint.id === complaintId);
+    
+    if (isSampleComplaint) {
+      // Update sample complaint in state
+      const updatedSampleComplaints = sampleComplaints.map(complaint => 
+        complaint.id === complaintId ? { ...complaint, status: newStatus } : complaint
+      );
+      setSampleComplaints(updatedSampleComplaints);
+      
+      // Update combined complaints
+      const submittedComplaints = JSON.parse(localStorage.getItem('complaints') || '[]');
+      const allComplaints = [...updatedSampleComplaints, ...submittedComplaints];
+      setComplaints(allComplaints);
+    } else {
+      // Update the complaint status in localStorage
+      const submittedComplaints = JSON.parse(localStorage.getItem('complaints') || '[]');
+      const updatedComplaints = submittedComplaints.map(complaint => 
+        complaint.id === complaintId ? { ...complaint, status: newStatus } : complaint
+      );
+      localStorage.setItem('complaints', JSON.stringify(updatedComplaints));
+      
+      // Update the local state
+      const allComplaints = [...sampleComplaints, ...updatedComplaints];
+      setComplaints(allComplaints);
+    }
+    
+    // Show success message
+    alert(`Complaint status updated to: ${newStatus}`);
   }
 
   return (
@@ -148,24 +207,33 @@ export default function ComplaintsTable() {
               filteredComplaints.map((complaint) => (
                 <tr key={complaint.id} className="hover:bg-gray-50">
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                    {complaint.studentName}
+                    {complaint.name}
+                    {complaint.id > 1000000000000 && (
+                      <span className="ml-2 px-2 py-1 text-xs bg-blue-100 text-blue-800 rounded-full">
+                        New
+                      </span>
+                    )}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{complaint.rollNo}</td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{complaint.pnNo}</td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{complaint.branch}</td>
-                  <td className="px-6 py-4 text-sm text-gray-500 max-w-xs truncate">{complaint.complaint}</td>
+                  <td className="px-6 py-4 text-sm text-gray-500 max-w-xs truncate">{complaint.complaint_text}</td>
                   <td className="px-6 py-4 whitespace-nowrap">
-                    <span
-                      className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                        complaint.status === "Resolved"
+                    <select
+                      value={complaint.status}
+                      onChange={(e) => handleStatusChange(complaint.id, e.target.value)}
+                      className={`px-2 py-1 text-xs font-semibold rounded-full border-0 focus:ring-2 focus:ring-blue-500 ${
+                        complaint.status === "resolved"
                           ? "bg-green-100 text-green-800"
-                          : complaint.status === "In Progress"
+                          : complaint.status === "in progress"
                             ? "bg-yellow-100 text-yellow-800"
                             : "bg-red-100 text-red-800"
                       }`}
                     >
-                      {complaint.status}
-                    </span>
+                      <option value="pending">Pending</option>
+                      <option value="in progress">In Progress</option>
+                      <option value="resolved">Resolved</option>
+                    </select>
                   </td>
                 </tr>
               ))

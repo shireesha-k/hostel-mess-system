@@ -30,9 +30,35 @@ export default function ComplaintsForm() {
 
   const handleSubmit = (e) => {
     e.preventDefault()
-    // In a real app, you would send this data to your backend
-    console.log("Complaint submitted:", formData)
+    
+    // Create new complaint object
+    const newComplaint = {
+      id: Date.now(), // Use timestamp as unique ID
+      name: formData.name,
+      rollNo: formData.rollNo,
+      pnNo: formData.pnNo,
+      branch: formData.branch,
+      complaint_text: formData.complaint,
+      status: "pending",
+      createdAt: new Date().toISOString()
+    };
+    
+    // Get existing complaints from localStorage
+    const existingComplaints = JSON.parse(localStorage.getItem('complaints') || '[]');
+    
+    // Add new complaint
+    existingComplaints.push(newComplaint);
+    
+    // Save back to localStorage
+    localStorage.setItem('complaints', JSON.stringify(existingComplaints));
+    
+    // Dispatch custom event to notify admin/caretaker interfaces
+    window.dispatchEvent(new CustomEvent('complaintSubmitted', { detail: newComplaint }));
+    
+    console.log("Complaint submitted:", newComplaint);
     alert("Your complaint has been submitted successfully!")
+    
+    // Reset form
     setFormData({
       name: "",
       rollNo: "",

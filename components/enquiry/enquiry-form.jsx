@@ -29,18 +29,44 @@ export default function EnquiryForm() {
   }
 
   const handleSubmit = (e) => {
-    e.preventDefault()
-    // In a real app, you would send this data to your backend
-    console.log("Enquiry submitted:", formData)
-    alert("Your enquiry has been submitted successfully!")
+    e.preventDefault();
+    
+    // Create new enquiry object
+    const newEnquiry = {
+      id: Date.now(), // Use timestamp as unique ID
+      name: formData.name,
+      email: formData.email,
+      phone: formData.phone,
+      subject: formData.subject,
+      message: formData.message,
+      status: "pending",
+      createdAt: new Date().toISOString()
+    };
+    
+    // Get existing enquiries from localStorage
+    const existingEnquiries = JSON.parse(localStorage.getItem('enquiries') || '[]');
+    
+    // Add new enquiry
+    existingEnquiries.push(newEnquiry);
+    
+    // Save back to localStorage
+    localStorage.setItem('enquiries', JSON.stringify(existingEnquiries));
+    
+    // Dispatch custom event to notify admin/caretaker interfaces
+    window.dispatchEvent(new CustomEvent('enquirySubmitted', { detail: newEnquiry }));
+    
+    console.log("Enquiry submitted:", newEnquiry);
+    alert('Your enquiry has been submitted successfully!');
+    
+    // Reset form
     setFormData({
       name: "",
       email: "",
       phone: "",
       subject: "",
       message: "",
-    })
-  }
+    });
+  };
 
   return (
     <div className="min-h-screen bg-gray-50">

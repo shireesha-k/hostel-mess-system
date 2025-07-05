@@ -1,81 +1,108 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Search, Filter } from "lucide-react"
 
 export default function EnquiryTable() {
   const [searchTerm, setSearchTerm] = useState("")
   const [filter, setFilter] = useState("all")
-
-  // Sample complaints data
-  const initialComplaints = [
+  const [enquiries, setEnquiries] = useState([])
+  const [sampleEnquiries, setSampleEnquiries] = useState([
     {
       id: 1,
-      studentName: "Rahul Sharma",
-      rollNo: 103,
-      pnNo: 765432,
-      branch: "CSE",
-      complaint: "When is the last date to pay the mess bill?",
-      status: "Pending",
+      name: "Rahul Sharma",
+      email: "rahul@example.com",
+      phone: "9876543210",
+      subject: "Mess Bill Payment",
+      message: "When is the last date to pay the mess bill?",
+      status: "pending",
     },
     {
       id: 2,
-      studentName: "Priya Singh",
-      rollNo: 102,
-      pnNo: 876543,
-      branch: "ECE",
-      complaint: "Can I take mess leave for 3 days?",
-      status: "Resolved",
+      name: "Priya Singh",
+      email: "priya@example.com",
+      phone: "8765432109",
+      subject: "Mess Leave Request",
+      message: "Can I take mess leave for 3 days?",
+      status: "resolved",
     },
     {
       id: 3,
-      studentName: "Neha Gupta",
-      rollNo: 104,
-      pnNo: 654321,
-      branch: "CSE",
-      complaint: "I was absent, but I’m marked present. What should I do?",
-      status: "Pending",
+      name: "Neha Gupta",
+      email: "neha@example.com",
+      phone: "7654321098",
+      subject: "Attendance Issue",
+      message: "I was absent, but I'm marked present. What should I do?",
+      status: "pending",
     },
     {
       id: 4,
-      studentName: "Vikram Patel",
-      rollNo: 105,
-      pnNo: 543210,
-      branch: "EEE",
-      complaint: "“How is the total mess bill calculated?",
-      status: "In Progress",
+      name: "Vikram Patel",
+      email: "vikram@example.com",
+      phone: "6543210987",
+      subject: "Bill Calculation",
+      message: "How is the total mess bill calculated?",
+      status: "in progress",
     },
     {
       id: 5,
-      studentName: "Ananya Reddy",
-      rollNo: 106,
-      pnNo: 432109,
-      branch: "IT",
-      complaint: "What expenses are included in the mess bill?",
-      status: "Resolved",
+      name: "Ananya Reddy",
+      email: "ananya@example.com",
+      phone: "5432109876",
+      subject: "Expenses Query",
+      message: "What expenses are included in the mess bill?",
+      status: "resolved",
     },
     {
       id: 6,
-      studentName: "Karthik Nair",
-      rollNo: 107,
-      pnNo: 321098,
-      branch: "CSE",
-      complaint: "Can I download my mess bill as PDF?",
-      status: "Pending",
-    },
-  ]
+      name: "Karthik Nair",
+      email: "karthik@example.com",
+      phone: "4321098765",
+      subject: "PDF Download",
+      message: "Can I download my mess bill as PDF?",
+      status: "pending",
+          },
+    ])
 
-  const [complaints] = useState(initialComplaints)
+  // Load enquiries from localStorage and combine with sample data
+  useEffect(() => {
+    const submittedEnquiries = JSON.parse(localStorage.getItem('enquiries') || '[]');
+    const allEnquiries = [...sampleEnquiries, ...submittedEnquiries];
+    setEnquiries(allEnquiries);
+  }, []);
 
-  // Filter complaints based on search term and status filter
-  const filteredComplaints = complaints.filter((complaint) => {
+  // Refresh data when localStorage changes or new enquiry is submitted
+  useEffect(() => {
+    const handleStorageChange = () => {
+      const submittedEnquiries = JSON.parse(localStorage.getItem('enquiries') || '[]');
+      const allEnquiries = [...sampleEnquiries, ...submittedEnquiries];
+      setEnquiries(allEnquiries);
+    };
+
+    const handleEnquirySubmitted = () => {
+      const submittedEnquiries = JSON.parse(localStorage.getItem('enquiries') || '[]');
+      const allEnquiries = [...sampleEnquiries, ...submittedEnquiries];
+      setEnquiries(allEnquiries);
+    };
+
+    window.addEventListener('storage', handleStorageChange);
+    window.addEventListener('enquirySubmitted', handleEnquirySubmitted);
+    
+    return () => {
+      window.removeEventListener('storage', handleStorageChange);
+      window.removeEventListener('enquirySubmitted', handleEnquirySubmitted);
+    };
+  }, []);
+
+  // Filter enquiries based on search term and status filter
+  const filteredEnquiries = enquiries.filter((enquiry) => {
     const matchesSearch =
-      complaint.studentName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      complaint.rollNo.toString().includes(searchTerm) ||
-      complaint.branch.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      complaint.complaint.toLowerCase().includes(searchTerm.toLowerCase())
+      enquiry.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      enquiry.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      enquiry.subject?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      enquiry.message?.toLowerCase().includes(searchTerm.toLowerCase())
 
-    const matchesFilter = filter === "all" || complaint.status.toLowerCase() === filter.toLowerCase()
+    const matchesFilter = filter === "all" || enquiry.status?.toLowerCase() === filter.toLowerCase()
 
     return matchesSearch && matchesFilter
   })
@@ -86,6 +113,38 @@ export default function EnquiryTable() {
 
   const handleFilterChange = (e) => {
     setFilter(e.target.value)
+  }
+
+  const handleStatusChange = (enquiryId, newStatus) => {
+    // Check if it's a sample enquiry or submitted enquiry
+    const isSampleEnquiry = sampleEnquiries.some(enquiry => enquiry.id === enquiryId);
+    
+    if (isSampleEnquiry) {
+      // Update sample enquiry in state
+      const updatedSampleEnquiries = sampleEnquiries.map(enquiry => 
+        enquiry.id === enquiryId ? { ...enquiry, status: newStatus } : enquiry
+      );
+      setSampleEnquiries(updatedSampleEnquiries);
+      
+      // Update combined enquiries
+      const submittedEnquiries = JSON.parse(localStorage.getItem('enquiries') || '[]');
+      const allEnquiries = [...updatedSampleEnquiries, ...submittedEnquiries];
+      setEnquiries(allEnquiries);
+    } else {
+      // Update the enquiry status in localStorage
+      const submittedEnquiries = JSON.parse(localStorage.getItem('enquiries') || '[]');
+      const updatedEnquiries = submittedEnquiries.map(enquiry => 
+        enquiry.id === enquiryId ? { ...enquiry, status: newStatus } : enquiry
+      );
+      localStorage.setItem('enquiries', JSON.stringify(updatedEnquiries));
+      
+      // Update the local state
+      const allEnquiries = [...sampleEnquiries, ...updatedEnquiries];
+      setEnquiries(allEnquiries);
+    }
+    
+    // Show success message
+    alert(`Enquiry status updated to: ${newStatus}`);
   }
 
   return (
@@ -103,7 +162,7 @@ export default function EnquiryTable() {
               value={searchTerm}
               onChange={handleSearchChange}
               className="pl-10 pr-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 w-full"
-              placeholder="Search quries..."
+              placeholder="Search enquiries..."
             />
           </div>
 
@@ -130,49 +189,58 @@ export default function EnquiryTable() {
           <thead className="bg-gray-100">
             <tr>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Student Name
+                Name
               </th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Roll No
+                Email
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">PN No</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Branch</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Phone</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Subject</th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Complaint
+                Message
               </th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-200">
-            {filteredComplaints.length > 0 ? (
-              filteredComplaints.map((complaint) => (
-                <tr key={complaint.id} className="hover:bg-gray-50">
+            {filteredEnquiries.length > 0 ? (
+              filteredEnquiries.map((enquiry) => (
+                <tr key={enquiry.id} className="hover:bg-gray-50">
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                    {complaint.studentName}
+                    {enquiry.name}
+                    {enquiry.id > 1000000000000 && (
+                      <span className="ml-2 px-2 py-1 text-xs bg-blue-100 text-blue-800 rounded-full">
+                        New
+                      </span>
+                    )}
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{complaint.rollNo}</td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{complaint.pnNo}</td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{complaint.branch}</td>
-                  <td className="px-6 py-4 text-sm text-gray-500 max-w-xs truncate">{complaint.complaint}</td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{enquiry.email}</td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{enquiry.phone}</td>
+                  <td className="px-6 py-4 text-sm text-gray-500 max-w-xs truncate">{enquiry.subject}</td>
+                  <td className="px-6 py-4 text-sm text-gray-500 max-w-xs truncate">{enquiry.message}</td>
                   <td className="px-6 py-4 whitespace-nowrap">
-                    <span
-                      className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                        complaint.status === "Resolved"
+                    <select
+                      value={enquiry.status}
+                      onChange={(e) => handleStatusChange(enquiry.id, e.target.value)}
+                      className={`px-2 py-1 text-xs font-semibold rounded-full border-0 focus:ring-2 focus:ring-blue-500 ${
+                        enquiry.status === "resolved"
                           ? "bg-green-100 text-green-800"
-                          : complaint.status === "In Progress"
+                          : enquiry.status === "in progress"
                             ? "bg-yellow-100 text-yellow-800"
                             : "bg-red-100 text-red-800"
                       }`}
                     >
-                      {complaint.status}
-                    </span>
+                      <option value="pending">Pending</option>
+                      <option value="in progress">In Progress</option>
+                      <option value="resolved">Resolved</option>
+                    </select>
                   </td>
                 </tr>
               ))
             ) : (
               <tr>
                 <td colSpan="6" className="px-6 py-4 text-center text-sm text-gray-500">
-                  No complaints found matching your search.
+                  No enquiries found matching your search.
                 </td>
               </tr>
             )}
